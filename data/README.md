@@ -13,4 +13,4 @@ To download the out-of-domain development data, run:
 
 `./download_out_of_domain_domain_dev.sh path/to/store/downloaded/directory`
 
-To extract files, use `gunzip -d filename.jsonl.gz`
+To extract files, use `gunzip -k filename.jsonl.gz`
