@@ -14,3 +14,9 @@ To download the out-of-domain development data, run:
 `./download_out_of_domain_domain_dev.sh path/to/store/downloaded/directory`
 
 To extract files, use `gunzip -k filename.jsonl.gz`
+
+# Data Visualization
+
+To visualize the data, use the `visualize.py` script:
+
+`python data/visualize.py /path/to/jsonl.gz`
