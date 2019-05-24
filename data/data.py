@@ -7,7 +7,6 @@ Data handling utils.
 import gzip
 import json
 import os
-import shutil
 import tensorflow as tf
 from typing import Dict, List
 
