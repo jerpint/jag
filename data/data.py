@@ -108,7 +108,7 @@ class DatasetHandler():
             None
 
         """
-        raw_file = open(rawdata_path, 'w')
+        raw_file = open(rawdata_path, 'w', encoding='utf-8')
         for dataset_name in self.dpath_dict.keys():
             print('Processing the dataset: {}'.format(dataset_name))
             f = gzip.open(self.dpath_dict[dataset_name], 'rb')
@@ -131,11 +131,15 @@ class DatasetHandler():
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cache_dir', type=str)
+    parser.add_argument('--cache_dir', type=str, default=None)
+    parser.add_argument('--raw_data_path', type=str, default=None)
+    parser.add_argument('--vocab_path', type=str, default=None)
     parser.add_argument('--raw_data_path', type=str, default=None)
     args = parser.parse_args()
 
-    data_handler = DatasetHandler()
-    # vocab = data_handler.build_vocab()
-    # print(len(vocab))
-    data_handler.generate_raw_dataset()
+    data_handler = DatasetHandler(cache_dir=args.cache_dir)
+    if args.vocab_path is not None:
+        vocab = data_handler.build_vocab()
+        print(len(vocab))
+    if args.raw_data_path is not None:
+        data_handler.generate_raw_dataset(args.raw_data_path)
