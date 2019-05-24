@@ -4,22 +4,23 @@ Data handling utils.
 
 """
 
-import argparse
 import gzip
 import json
-import numpy as np
 import os
 import shutil
 import tensorflow as tf
+from typing import Dict, List
 
 
 class DatasetHandler():
+    """ Class with different tools for the dataset.
 
+    """
     def __init__(self, data_src='mrqa_urls.txt', cache_dir=None):
         self.dpath_dict = self.get_file(data_src, cache_dir)
         print(self.dpath_dict)
 
-    def get_file(self, data_src: str, cache_dir: str):
+    def get_file(self, data_src: str, cache_dir: str) -> Dict[str, str]:
         """ Retrieve the path of the datasets specified in data_src in cache_dir.
         If the dataset does not exists in cache_dir, it is downloaded.
 
@@ -43,10 +44,7 @@ class DatasetHandler():
                 dpath_dict[os.path.basename(url).split('.')[0]] = dpath
         return dpath_dict
 
-    def _clean_cache(self, cache_dir: str):
-        shutil.rmtree(cache_dir)
-
-    def build_vocab_from_dataset(self, dataset_name: str):
+    def build_vocab_from_dataset(self, dataset_name: str) -> List[str]:
         """ Retrieve the path of the datasets specified in data_src in cache_dir.
         If the dataset does not exists in cache_dir, it is downloaded.
 
@@ -71,8 +69,11 @@ class DatasetHandler():
                 vocab += [l[0].lower() for l in qa['question_tokens']]
         return vocab
 
-    def build_vocab(self):
-        """ Retrieve the union of the vocabularies from different datasets.
+    def build_vocab(self, vocab_filepath: str = 'vocab.txt') -> List[str]:
+        """ Retrieve the union of vocabularies from different datasets.
+
+        Args:
+            vocab_filepath (str): the filepath of the vocabulary file
 
         Returns:
             vocab: A list of tokens
@@ -80,25 +81,19 @@ class DatasetHandler():
         """
         vocab = []
         for dataset_name in self.dpath_dict.keys():
-            print(dataset_name)
+            print('Processing the vocabulary of dataset: {}'.format(dataset_name))
             vocab += self.build_vocab_from_dataset(dataset_name)
             vocab = list(set(vocab))
-            print(len(vocab))
-        print('Writing vocab to file')
-        with open('vocab.txt', 'w') as vfile:
+            print('Vocabulary length so far: {:d}'.format(len(vocab)))
+        print('Processing completed. Writing vocabulary to {}'.format(vocab_filepath))
+        vocab.sort()
+        with open(vocab_filepath, 'w') as vfile:
             for token in vocab:
                 vfile.write('{}\n'.format(token))
         return vocab
 
-    def token2ids(self):
-        self.token2idx = {u: i for i, u in enumerate(vocab)}
-
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('input', type=str)
-    # parser.add_argument('--qid', type=str, default=None)
-    # args = parser.parse_args()
     data_handler = DatasetHandler()
     vocab = data_handler.build_vocab()
-    print(len(set(vocab)))
+    print(len(vocab))
