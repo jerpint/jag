@@ -1,0 +1,7 @@
+# You can use comment to ignore some data sources
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/SQuAD.jsonl.gz be0d95e28b470254b3574aeada84a79d
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/NewsQA.jsonl.gz aa9878b7469ad5b5c0f0738636cdb5bd
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/TriviaQA-web.jsonl.gz fdfac306651dd74372f0edcff357ec80
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/SearchQA.jsonl.gz fa087f2cc134f9c316f1d93c40827615
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/HotpotQA.jsonl.gz d0adef52100cbbf93090ba6c06b83b2b
+https://s3.us-east-2.amazonaws.com/mrqa/release/dev/NaturalQuestionsShort.jsonl.gz a017834fddfe9df888b7f6cd5bbfba2e
