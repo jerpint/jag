@@ -39,7 +39,6 @@ class FasttextEmbedding:
         if word in self.embeddings.keys():
             return self.embeddings[word]
         else:
-            print("Random")
             return np.random.random(300)
 
 
