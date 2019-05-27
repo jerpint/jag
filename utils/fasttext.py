@@ -22,7 +22,7 @@ class FasttextEmbedding:
         '''
         Loads fasttext word embeddings in memory
         '''
-        filein = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
+        filein = io.open(self.fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
         data = {}
         for count, line in enumerate(filein):
             tokens = line.rstrip().split(' ')
@@ -32,7 +32,7 @@ class FasttextEmbedding:
                 break
         self.embeddings = data
 
-    def get_word(self, word):
+    def embed(self, word):
 
         word = word.lower()
 
@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     fname = 'data/wiki-news-300d-1M.vec'
     embeddings = FasttextEmbedding(fname)
-    print(embeddings.get_word('cool'))
+    print(embeddings.embed('cool'))
