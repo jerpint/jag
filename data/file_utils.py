@@ -15,7 +15,6 @@ import tempfile
 import fnmatch
 from functools import wraps
 from hashlib import sha256
-import sys
 from io import open
 
 import boto3
@@ -44,6 +43,14 @@ try:
 except (AttributeError, ImportError):
     PYTORCH_PRETRAINED_BERT_CACHE = os.getenv('PYTORCH_PRETRAINED_BERT_CACHE',
                                               default_cache_path)
+
+if sys.version_info[0] == 3:
+
+    def unicode(text, code=None):
+        """
+        Simulate the unicode function of python 2.7.
+        """
+        return text
 
 CONFIG_NAME = "config.json"
 WEIGHTS_NAME = "pytorch_model.bin"

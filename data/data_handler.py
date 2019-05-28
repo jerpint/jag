@@ -11,11 +11,8 @@ import re
 import string
 import tensorflow as tf
 from typing import Dict, List
-import sys
-from collections import Counter
-import pickle
 
-from bert_tokenization import BertTokenizer, PRETRAINED_VOCAB_ARCHIVE_MAP
+from bert_tokenization import BertTokenizer
 
 
 class DatasetHandler():
@@ -182,14 +179,14 @@ class DatasetHandler():
 
     def check_answer_tokenization_from_dataset(
             self, dataset_name, tokenizer, wordpiece_indicator="##"):
-        """ Check the proportion of the answers in the given dataset that can be 
+        """ Check the proportion of the answers in the given dataset that can be
         perfectly reconstructed using the provided tokenizer
         Args:
             dataset_path (str): path of the dataset
             tokenizer: the tokenizer to be used
             wordpiece_indicator (str): an indicator of a subword tokens
         Returns:
-            result (float, int): reconstruction rate and number of 
+            result (float, int): reconstruction rate and number of
             examples of the dataset
         """
         f = gzip.open(self.dpath_dict[dataset_name], 'rb')
@@ -221,7 +218,7 @@ class DatasetHandler():
 
     def check_answer_tokenization(
             self, tokenizer, wordpiece_indicator="##") -> Dict:
-        """ Check the proportion of the answers in each dataset that can be 
+        """ Check the proportion of the answers in each dataset that can be
         perfectly reconstructed using the provided tokenizer
         Args:
             tokenizer: the tokenizer to be used
