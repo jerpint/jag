@@ -1,0 +1,7 @@
+# You can use comment to ignore some data sources
+dev BioASQ.jsonl.gz http://participants-area.bioasq.org/MRQA2019/ 00ac07599c80c1ac36256f0a2f4bda48
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/DROP.jsonl.gz 0b509e2bebdba16d81f1d3c4f9bedf7c
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/DuoRC.ParaphraseRC.jsonl.gz dcb351275bb7695a54270ca4b59b85c8
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/RACE.jsonl.gz 6cf376f0ab4217e147a2ff4603972e37
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/RelationExtraction.jsonl.gz 20e0fc79f26d13eaac68e62c77980223
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/TextbookQA.jsonl.gz 3319b8aab7aea550e2392f9b95bbf415
