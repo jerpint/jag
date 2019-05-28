@@ -24,21 +24,20 @@ time_steps = context_embeddings.shape[0]
 num_features = context_embeddings.shape[2]
 raw_question = questions[0][0]['question']
 
-words_in_context = tf.placeholder(tf.float32, [time_steps+1, batch_size, num_features])
+
+question_embedding_use = embed_model([raw_question])
+dense_linear = tf.keras.layers.Dense(units=num_features)
+question_embedding = dense_linear(question_embedding_use)
+question_embedding = tf.reshape(question_embedding, [batch_size, 1, num_features])
+
+context_embedding = tf.placeholder(tf.float32, [time_steps, batch_size, num_features])
+
+embedded_question_context = tf.concat([question_embedding, context_embedding], axis=0)
 
 lstm = tf.keras.layers.LSTM(units=2)
-lstm_forward = lstm(words_in_context)
-
-question_embedding_placeholder = tf.placeholder(tf.float32, [batch_size, 512])
-dense_linear = tf.keras.layers.Dense(units=300)
-dense = dense_linear(question_embedding_placeholder)
+lstm_forward = lstm(embedded_question_context)
 
 with tf.Session() as sess:
 
     sess.run([tf.global_variables_initializer(), tf.tables_initializer()])
-    question_embedding = sess.run(embed_model([raw_question]))
-    reshaped_embedding = sess.run(dense, {question_embedding_placeholder: question_embedding})
-    reshaped_embedding = np.expand_dims(reshaped_embedding, axis=0)
-
-    context_embeddings = np.concatenate((reshaped_embedding, context_embeddings))
-    context_pred = sess.run(lstm_forward, {words_in_context: context_embeddings})
+    context_pred = sess.run(lstm_forward, {context_embedding: context_embeddings})
