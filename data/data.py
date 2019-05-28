@@ -69,7 +69,6 @@ def dataset_generator(fname='data/SQuAD.jsonl.gz', batch_size=4):
 
         for i, line in enumerate(f):
             instance = json.loads(line)
-            print("Here")
 
             # Skip headers.
             if i == 0 and 'header' in instance:
