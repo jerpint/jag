@@ -15,12 +15,12 @@ data = dataset_generator()
 
 context_embeddings, context_positions, questions = next(data)
 
-
 # TODO: This is sample data from batch for debugging, fix
 context_embeddings = context_embeddings[0]
-batch_size = context_embeddings.shape[1]
-time_steps = context_embeddings.shape[0]
+batch_size = context_embeddings.shape[0]
+time_steps = context_embeddings.shape[1]
 num_features = context_embeddings.shape[2]
+
 raw_question = questions[0][0]['question']
 
 
@@ -29,11 +29,11 @@ dense_linear = tf.keras.layers.Dense(units=num_features)
 question_embedding = dense_linear(question_embedding_use)
 question_embedding = tf.reshape(question_embedding, [batch_size, 1, num_features])
 
-context_embedding = tf.placeholder(tf.float32, [time_steps, batch_size, num_features])
+context_embedding = tf.placeholder(tf.float32, [batch_size, time_steps, num_features])
 
-embedded_question_context = tf.concat([question_embedding, context_embedding], axis=0)
+embedded_question_context = tf.concat([question_embedding, context_embedding], axis=1)
 
-lstm = tf.keras.layers.LSTM(units=2)
+lstm = tf.keras.layers.LSTM(units=2, return_sequences=True)
 lstm_forward = lstm(embedded_question_context)
 
 with tf.Session() as sess:

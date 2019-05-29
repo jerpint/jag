@@ -88,7 +88,7 @@ def dataset_generator(fname='data/SQuAD.jsonl.gz', batch_size=4):
                         context_positions.append(pos)
 
                     context_embeddings = np.asarray(context_embeddings)
-                    context_embeddings = np.expand_dims(context_embeddings, axis=1)
+                    context_embeddings = np.expand_dims(context_embeddings, axis=0)
 
                     batch_context_embeddings.append(context_embeddings)
                     batch_context_positions.append(context_positions)
