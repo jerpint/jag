@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 import json
-from tensorflow.keras import backend as K
 
 from transformer import TransformerEncoder
 from bert_modeling import BertConfig
@@ -352,6 +351,7 @@ def load_google_bert(
                 print('not mapped: ', var_name)
     model.set_weights(weights)
     return model
+
 
 if __name__ == '__main__':
     # model = load_openai_transformer(

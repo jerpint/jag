@@ -4,7 +4,6 @@ from tensorflow.keras import initializers as init
 from tensorflow.keras import backend as K
 import numpy as np
 import math
-import json
 
 
 class LayerNormalization(layers.Layer):
@@ -78,14 +77,14 @@ class Embedding(layers.Layer):
         vocab_size: size of the vocalbulary. Default: 30000.
         max_len: maximum length of the input sequence. Default: 512.
         trainable_pos_embedding: whether or not to train the positional embeddings.
-    Default: ``True``. 
+    Default: ``True``.
         num_segments: number of segments. if None or set to zero, then the segment
-    embeddings  won't be performed. Default: None. 
-        use_one_dropout: if ``True``, the different embeddings will be summed up 
+    embeddings  won't be performed. Default: None.
+        use_one_dropout: if ``True``, the different embeddings will be summed up
     before applying dropout, otherwise dropout will be applied to each embedding type
-    independently before summing them. Default: ``False``. 
+    independently before summing them. Default: ``False``.
         use_embedding_layer_norm: if ``True``, layer normalization will be applied on
-    the resulting embeddings. Default: ``False``.  
+    the resulting embeddings. Default: ``False``.
         layer_norm_epsilon: parameter of the layer normalization operation. Default: 1e-5
 
     Shape:
@@ -228,15 +227,15 @@ class ScaledDotProductAttention(layers.Layer):
         temperature: the normalizing constant.
         attn_dropout: dropout rate to be applied on the result. Default: 0.1.
         use_attn_mask: whether or not the layer expects to use mask in the computation.
-    Default: ``False``. 
+    Default: ``False``.
         neg_inf: constant representing the negative infinite value. Default: ``-np.inf``.
 
     Inputs:
         ``query``: the query of dimension :math:`(N, H, L, Dk)`
         ``keys``: the keys of dimension :math:`(N, H, Dk, L)`
         ``values``: the values of dimension :math:`(N, H, L, Dv)`
-        ``mask`` (only if use_attn_mask is True): the mask of dimension 
-    :math:`(N, 1, L, L)`. 
+        ``mask`` (only if use_attn_mask is True): the mask of dimension
+    :math:`(N, 1, L, L)`.
     Outputs:
         ``result``: the result of the operation :math:`(N, H, L, Dv)`
         ``attention_weight``: the attention values :math:`(N, H, L, L)`
@@ -314,19 +313,19 @@ class MultiHeadAttention(layers.Layer):
         d_model: dimension of the ouput results.
         d_k: dimension of the keys and the queries.
         d_v: dimension of the values.
-        attention_dropout: dropout rate to be applied on each single attention 
+        attention_dropout: dropout rate to be applied on each single attention
     head. Default: 0.1.
-        dropout: dropout rate to be applied on the projection of 
+        dropout: dropout rate to be applied on the projection of
     the concatenation of all attention heads. Default: 0.1.
         use_attn_mask: whether or not the layer expects to use mask in the computation.
-    Default: ``False``.         
+    Default: ``False``.
         layer_norm_epsilon: parameter of the layer normalization operation. Default: 1e-5
         neg_inf: constant representing the negative infinite value. Default: ``-np.inf``.
 
     Inputs:
         ``seq``: the input sequence of dimension :math:`(N, L, d_model)`
-        ``mask`` (only if use_attn_mask is True): the mask of dimension 
-    :math:`(N, 1, L, L)`. 
+        ``mask`` (only if use_attn_mask is True): the mask of dimension
+    :math:`(N, 1, L, L)`.
     Outputs:
         ``result``: the result of the operation :math:`(N, L, d_model)`
         ``attention_weight``: the attention values :math:`(N, n_head, L, L)`
@@ -506,12 +505,12 @@ class PositionwiseFeedForward(layers.Layer):
         d_in: dimension of the input data.
         d_hid: dimension of the intermediate dense layer.
         dropout: dropout rate to be applied on the results. Default: 0.1.
-        d_out: dimension of the output data. if ``None``, it is set to d_in. 
+        d_out: dimension of the output data. if ``None``, it is set to d_in.
         layer_norm_epsilon: parameter of the layer normalization operation. Default: 1e-5
         use_gelu: if ``True``, use the ``GeLU`` activation layer instead of
     the ``ReLU`` one.  Default: ``False``
         accurate_gelu: whether or not to use accurate (vs approximate)
-    computation of the `GeLU`` operator. Default: ``False``.    
+    computation of the `GeLU`` operator. Default: ``False``.
 
     Shape:
         - Input: :math:`(N, L, d_in)`
@@ -573,7 +572,7 @@ class PositionwiseFeedForward(layers.Layer):
             tmp2.append(1)
             new_r = K.reshape(residual, tmp2)
 
-            output = self.pff_add([output, residual])
+            output = self.pff_add([new_o, new_r])
             tmp3 = list(tmp)
             tmp3[-1] = self.d_out
 
@@ -613,7 +612,7 @@ class Pooler(layers.Layer):
 
     Shape:
         - Input: :math:`(N, L, d_hid)`
-        - Output: :math:`(N, d_hid)`  
+        - Output: :math:`(N, d_hid)`
 
     """
 
@@ -1019,28 +1018,28 @@ class EncoderLayer(layers.Layer):
         d_k: dimension of the keys and the queries.
         d_v: dimension of the values.
         d_out: dimension of the output data. if ``None``, it is set to d_model.
-        residual_dropout: dropout rate to be applied on each residual operation 
+        residual_dropout: dropout rate to be applied on each residual operation
     results. Default: 0.1.
-        attention_dropout: dropout rate to be applied on each attention 
+        attention_dropout: dropout rate to be applied on each attention
     mechanism results. Default: 0.1.
-        use_pad_mask: whether or not the layer expects to use pad mask in the computation.
-    Default: ``False``.         
-        use_attn_mask: whether or not the layer expects to use attention mask in the computation.
-    Default: ``True``.
+        use_pad_mask: whether or not the layer expects to use pad mask in the 
+    computation. Default: ``False``.
+        use_attn_mask: whether or not the layer expects to use attention mask 
+    in the computation. Default: ``True``.
         neg_inf: constant representing the negative infinite value. Default: ``-np.inf``.
         ln_epsilon: parameter of the layer normalization operation. Default: 1e-5
         use_gelu: if ``True``, use the ``GeLU`` activation layer instead of
     the ``ReLU`` one.  Default: ``True``
         accurate_gelu: whether or not to use accurate (vs approximate)
-    computation of the `GeLU`` operator. Default: ``False``. 
+    computation of the `GeLU`` operator. Default: ``False``.
 
 
     Inputs:
         ``seq``: the input sequence of dimension :math:`(N, L, d_model)`
-        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension 
+        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension
     :math:`(N, 1, L, L)`.
-        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension 
-    :math:`(N, L, 1)`. 
+        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension
+    :math:`(N, L, 1)`.
     Outputs:
         ``result``: the result of the operation :math:`(N, L, d_out)`
         ``attention_weight``: the attention values :math:`(N, n_head, L, L)`
@@ -1086,7 +1085,7 @@ class EncoderLayer(layers.Layer):
         else:
             shape = tf.TensorShape(input_shape).as_list()
         shape[-1] = self.d_out
-        shape2 = [shape1[0], self.n_head, shape1[1], shape1[1]]
+        shape2 = [shape[0], self.n_head, shape[1], shape[1]]
 
         return [tf.TensorShape(shape), tf.TensorShape(shape2)]
 
@@ -1154,16 +1153,16 @@ class DecoderLayer(layers.Layer):
         d_k: dimension of the keys and the queries.
         d_v: dimension of the values.
         d_out: dimension of the output data. if ``None``, it is set to d_model.
-        residual_dropout: dropout rate to be applied on each residual operation 
+        residual_dropout: dropout rate to be applied on each residual operation
     results. Default: 0.1.
-        attention_dropout: dropout rate to be applied on each attention 
+        attention_dropout: dropout rate to be applied on each attention
     mechanism results. Default: 0.1.
         use_pad_mask: whether or not the layer expects to use pad mask in
     the computation. Default: ``False``.
         use_attn_mask: whether or not the layer expects to use attention
     mask in the computation. Default: ``True``.
         use_enc_output: whether or not the layer expects to use ouputs from
-    the encoder in the computation. Default: ``True``.      
+    the encoder in the computation. Default: ``True``.
         use_enc_mask: whether or not the layer expects to use the masks from the
     encoder in the computation. Default: ``False``.
         neg_inf: constant representing the negative infinite value. Default: ``-np.inf``.
@@ -1171,19 +1170,19 @@ class DecoderLayer(layers.Layer):
         use_gelu: if ``True``, use the ``GeLU`` activation layer instead of
     the ``ReLU`` one.  Default: ``True``
         accurate_gelu: whether or not to use accurate (vs approximate)
-    computation of the `GeLU`` operator. Default: ``False``. 
+    computation of the `GeLU`` operator. Default: ``False``.
 
 
     Inputs:
         ``seq``: the input sequence of dimension :math:`(N, L, d_model)`
         ``enc_ouputs``(only if use_enc_output is True): the output of
     the encoder :math:`(N, Le, d_model)`
-        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension 
+        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension
     :math:`(N, 1, L, L)`.
-        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension 
-    :math:`(N, L, 1)`. 
-        ``enc_mask`` (only if use_enc_mask is True): the enc_mask of dimension 
-    :math:`(N, 1, Le, Le)`. 
+        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension
+    :math:`(N, L, 1)`.
+        ``enc_mask`` (only if use_enc_mask is True): the enc_mask of dimension
+    :math:`(N, 1, Le, Le)`.
     Outputs:
         ``result``: the result of the operation :math:`(N, L, d_out)`
         ``attention_weight``: the attention values :math:`(N, n_head, L, L)`
@@ -1244,7 +1243,7 @@ class DecoderLayer(layers.Layer):
             shape = tf.TensorShape(input_shape).as_list()
         shape = tf.TensorShape(input_shape[0]).as_list()
         shape[-1] = self.d_out
-        shape2 = [shape1[0], self.n_head, shape1[1], shape1[1]]
+        shape2 = [shape[0], self.n_head, shape[1], shape[1]]
 
         output_shape = [tf.TensorShape(shape), tf.TensorShape(shape2)]
 
@@ -1376,17 +1375,17 @@ class TransformerEncoder(models.Model):
         num_segments: number of segments. if None or set to zero, then the segment
     embeddings  won't be performed. Default: 2.
         embedding_dropout: dropout rate to be applied on embedding results. Default: 0.1.
-        attention_dropout: dropout rate to be applied on each attention 
+        attention_dropout: dropout rate to be applied on each attention
     mechanism results. Default: 0.1.
-        residual_dropout: dropout rate to be applied on each residual operation 
+        residual_dropout: dropout rate to be applied on each residual operation
     results. Default: 0.1.
         embedding_layer_norm: if ``True``, layer normalization will be applied on
-    the resulting embeddings. Default: ``False``.  
+    the resulting embeddings. Default: ``False``.
         layer_norm_epsilon: parameter of the layer normalization operation. Default: 1e-5
         neg_inf: constant representing the negative infinite value. Default: ``-1e9``.
         trainable_pos_embedding: whether or not to train the positional embeddings.
-    Default: ``True``.    
-        use_one_embedding_dropout: if ``True``, the different embeddings will be 
+    Default: ``True``.
+        use_one_embedding_dropout: if ``True``, the different embeddings will be
     summed up before applying dropout, otherwise dropout will be applied to each
     embedding type independently before summing them. Default: ``False``.
         use_attn_mask: whether or not the layer expects to use attention mask in the
@@ -1426,19 +1425,19 @@ class TransformerEncoder(models.Model):
     Inputs:
         ``seq``: the input sequence of dimension :math:`(N, L)`
         `token_type_ids` (only if num_segments > 0): types of the tokens
-    of dimension `(N, L)` with values in range [0, num_segments[. E.g., for 
-    num_segments = 2, Type 0 corresponds to a `sentence A` and type 1 
+    of dimension `(N, L)` with values in range [0, num_segments[. E.g., for
+    num_segments = 2, Type 0 corresponds to a `sentence A` and type 1
     corresponds to a `sentence B` token (see BERT paper for more details).
         ``pos_tokens``: the position tokens over the input sequence of
     dimension :math:`(N, L)`
-        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension 
+        ``attn_mask`` (only if use_attn_mask is True): the attn_mask of dimension
     :math:`(N, 1, L, L)`.
-        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension 
-    :math:`(N, L, 1)`. 
+        ``pad_mask`` (only if use_pad_mask is True): the pad_mask of dimension
+    :math:`(N, L, 1)`.
 
     Outputs:
         ``result``: the result of the operation of dimension :math:`(N, L, d_out)`
-        ``pooled``(only if use_pooler is True): the result of the pooler    
+        ``pooled``(only if use_pooler is True): the result of the pooler
     operation of dimension :math:`(N, d_out)`
         ``lm_seq``(only if use_masked_lm is True): the result of the masked LM task
     of dimension :math:`(N, L, vocab_size)`
@@ -1758,6 +1757,7 @@ class TransformerEncoder(models.Model):
     @classmethod
     def from_config(cls, config):
         return cls(**config)
+
 
 if __name__ == '__main__':
 
