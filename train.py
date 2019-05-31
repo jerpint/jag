@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
@@ -15,28 +16,75 @@ data = dataset_generator()
 
 context_embeddings, context_positions, questions = next(data)
 
-# TODO: This is sample data from batch for debugging, fix
+# TODO: Fix: this is sample data from a batch for initializing sizes
 context_embeddings = context_embeddings[0]
 batch_size = context_embeddings.shape[0]
 time_steps = context_embeddings.shape[1]
 num_features = context_embeddings.shape[2]
 
-raw_question = questions[0][0]['question']
+raw_question_ph = tf.placeholder(tf.string, name='raw_queestion')
+context_emb_ph = tf.placeholder(tf.float32, shape=[batch_size, None, num_features],
+                                name='context_embedding')
+indices_ph = tf.placeholder(tf.int32, name='label_indices', shape=[None])
 
 
-question_embedding_use = embed_model([raw_question])
-dense_linear = tf.keras.layers.Dense(units=num_features)
-question_embedding = dense_linear(question_embedding_use)
-question_embedding = tf.reshape(question_embedding, [batch_size, 1, num_features])
+def embed_question_and_context(raw_question, context_embedding):
+    question_embedding_use = embed_model([raw_question_ph])
+    dense_linear = tf.keras.layers.Dense(units=num_features)
+    question_embedding = dense_linear(question_embedding_use)
+    question_embedding = tf.reshape(question_embedding, [batch_size, 1, num_features])
 
-context_embedding = tf.placeholder(tf.float32, [batch_size, time_steps, num_features])
+    return tf.concat([question_embedding, context_emb_ph], axis=1)
 
-embedded_question_context = tf.concat([question_embedding, context_embedding], axis=1)
 
-lstm = tf.keras.layers.LSTM(units=2, return_sequences=True)
-lstm_forward = lstm(embedded_question_context)
+def vanilla_lstm(embedded_question_context):
+    lstm = tf.keras.layers.LSTM(units=2, return_sequences=True)
+    logits = lstm(embedded_question_context)
+
+    #  First time step is the question embedding so we ignore it
+    return logits[:, 1:, :]
+
+
+def make_oh_labels(indices_ph):
+    labels = tf.one_hot(indices=indices_ph, depth=2)
+    labels = tf.expand_dims(labels, axis=0)
+
+    return labels
+
+
+embedded_qc = embed_question_and_context(raw_question_ph, context_emb_ph)
+logits = vanilla_lstm(embedded_qc)
+preds = tf.nn.softmax(logits)
+labels = make_oh_labels(indices_ph)
+
+sce_loss = tf.losses.softmax_cross_entropy(labels, logits)
+
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+train_op = optimizer.minimize(sce_loss)
 
 with tf.Session() as sess:
 
     sess.run([tf.global_variables_initializer(), tf.tables_initializer()])
-    context_pred = sess.run(lstm_forward, {context_embedding: context_embeddings})
+    for batch in range(10):
+
+        print("Batch :", batch)
+
+        context_embeddings, context_positions, questions = next(data)
+
+        # TODO: This is only assuming batch_size=1, will need to generalize
+
+        context_embeddings = context_embeddings[0]
+        batch_size = context_embeddings.shape[0]
+        time_steps = context_embeddings.shape[1]
+        num_features = context_embeddings.shape[2]
+
+        raw_question = questions[0][0]['question']
+
+        token_spans = questions[0][0]['detected_answers'][0]['token_spans'][0]
+        indices = np.zeros(time_steps, dtype=np.int32)
+        indices[token_spans[0]:token_spans[1]+1] = 1
+
+        sess.run(train_op,
+                 {context_emb_ph: context_embeddings,
+                  indices_ph: indices,
+                  raw_question_ph: raw_question})
