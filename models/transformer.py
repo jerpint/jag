@@ -1022,9 +1022,9 @@ class EncoderLayer(layers.Layer):
     results. Default: 0.1.
         attention_dropout: dropout rate to be applied on each attention
     mechanism results. Default: 0.1.
-        use_pad_mask: whether or not the layer expects to use pad mask in the 
+        use_pad_mask: whether or not the layer expects to use pad mask in the
     computation. Default: ``False``.
-        use_attn_mask: whether or not the layer expects to use attention mask 
+        use_attn_mask: whether or not the layer expects to use attention mask
     in the computation. Default: ``True``.
         neg_inf: constant representing the negative infinite value. Default: ``-np.inf``.
         ln_epsilon: parameter of the layer normalization operation. Default: 1e-5
