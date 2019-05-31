@@ -29,6 +29,20 @@ indices_ph = tf.placeholder(tf.int32, name='label_indices', shape=[None])
 
 
 def embed_question_and_context(raw_question, context_embedding):
+    """Creates a single embedding from the question and context tokens.
+
+    We use the Universal Sentence Encoder to encode the question and
+    a linear mapping to reduce its dimension to match the fasttext
+    dimension of our tokens.
+
+    Args:
+        raw_question (str): The full question as a single string
+        context_embedding (ndarray): A tensor containing the token embeddings of shape
+           [batch_size, time_steps, num_features].
+
+    Returns:
+        tf.tensor: A tf.tensor with the question concatenated at the first time step
+    """
     question_embedding_use = embed_model([raw_question_ph])
     dense_linear = tf.keras.layers.Dense(units=num_features)
     question_embedding = dense_linear(question_embedding_use)
@@ -38,6 +52,15 @@ def embed_question_and_context(raw_question, context_embedding):
 
 
 def vanilla_lstm(embedded_question_context):
+    """A simple lstm model.
+
+    Args:
+        embedded_question_context (tf.tensor): A tf.tensor with the question concatenated
+        at the first time step has shape [batch_size, time_steps, num_features].
+
+    Returns:
+        tf.tensor: A tf.tensor with the logit outputs of the LSTM
+    """
     lstm = tf.keras.layers.LSTM(units=2, return_sequences=True)
     logits = lstm(embedded_question_context)
 
@@ -46,6 +69,15 @@ def vanilla_lstm(embedded_question_context):
 
 
 def make_oh_labels(indices_ph):
+    """Genrate one hot labels for the target.
+
+    Args:
+        indices_ph (tf.placeholder): A placeholder of the indices to words that
+        correspond to the answerthe question concatenated
+
+    Returns:
+        tf.tensor: A tf.tensor with the one-hot labels
+    """
     labels = tf.one_hot(indices=indices_ph, depth=2)
     labels = tf.expand_dims(labels, axis=0)
 
