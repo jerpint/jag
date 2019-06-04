@@ -1,6 +1,8 @@
+/data/rawdata.txt
+/data/vocab.txt
 __pycache__
 *.jsonl.gz
 *.jsonl
 *.json
 *.zip
-*.txt
+
