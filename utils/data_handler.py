@@ -12,7 +12,7 @@ import string
 import tensorflow as tf
 from typing import Dict, List
 
-from bert_tokenization import BertTokenizer
+from tokenizer.bert_tokenization import BertTokenizer
 
 
 class DatasetHandler():
