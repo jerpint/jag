@@ -1,0 +1,1 @@
+fastext https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip 3cc8839ac3fa9a6187149b1e73328b2a

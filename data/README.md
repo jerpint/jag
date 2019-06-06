@@ -1,19 +1,10 @@
-# Download Scripts
-MRQA have provided a convenience script to download all of the training and development data (that is released).
+# Download Data
+To download the data, add 
 
-Please run:
-
-`./download_train.sh path/to/store/downloaded/directory`
-
-To download the development data of the training datasets (in-domain), run:
-
-`./download_in_domain_dev.sh path/to/store/downloaded/directory`
-
-To download the out-of-domain development data, run:
-
-`./download_out_of_domain_domain_dev.sh path/to/store/downloaded/directory`
-
-To extract files, use `gunzip -k filename.jsonl.gz`
+```
+import utils
+utils.data_fetcher.get_file(data_src='./data/mrqa_urls.txt', cache_dir='./unit_tests/data')
+```
 
 # Data Visualization
 
