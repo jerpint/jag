@@ -19,6 +19,7 @@ def test_basic_tokenizer():
 
     assert output_tokens == expected_out
 
+
 def test_bert_tokenizer():
     '''Unit test of Bert tokenizer utility'''
 
