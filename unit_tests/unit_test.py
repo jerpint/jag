@@ -1,8 +1,7 @@
-import tensorflow as tf
-
-
 def test_tensorflow():
     '''Basic test to make sure tensorflow is properly installed'''
+
+    import tensorflow as tf
 
     a = tf.constant(3.0)
     b = tf.constant(4.0)
