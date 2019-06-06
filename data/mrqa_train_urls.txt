@@ -1,7 +1,8 @@
 # You can use comment to ignore some data sources
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/NewsQA.jsonl.gz aa9878b7469ad5b5c0f0738636cdb5bd
 # train https://s3.us-east-2.amazonaws.com/mrqa/release/train/SQuAD.jsonl.gz 67afd110c0ad9860c4e88f16a44cd44c
 # train https://s3.us-east-2.amazonaws.com/mrqa/release/train/NewsQA.jsonl.gz d8288b5de5bd10fb42ce5291ef0f7fbe
 # train https://s3.us-east-2.amazonaws.com/mrqa/release/train/TriviaQA-web.jsonl.gz 1d198c0cd60e4d91130e2a2545eb9122
 # train https://s3.us-east-2.amazonaws.com/mrqa/release/train/SearchQA.jsonl.gz fa9c8c6b2f24e4f410cba81ef63ea284
 # train https://s3.us-east-2.amazonaws.com/mrqa/release/train/HotpotQA.jsonl.gz 53e65212b46c74a6ee95e83817443db1
-train https://s3.us-east-2.amazonaws.com/mrqa/release/train/NaturalQuestionsShort.jsonl.gz f12d2ce98ba0065a79226b9fa22d936a
+# train https://s3.us-east-2.amazonaws.com/mrqa/release/train/NaturalQuestionsShort.jsonl.gz f12d2ce98ba0065a79226b9fa22d936a

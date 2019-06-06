@@ -2,13 +2,13 @@ import tensorflow as tf
 import numpy as np
 import json
 
-from transformer import TransformerEncoder
-from bert_modeling import BertConfig
+from .transformer import TransformerEncoder
+from .bert_modeling import BertConfig
 
 
 def load_openai_transformer(
         path, use_attn_mask=True, max_len=512,
-        use_one_embedding_dropout=False, **kwargs):
+        use_one_embedding_dropout=False, is_training=True, **kwargs):
 
     with open(path + 'params_shapes.json') as f:
         shapes = json.load(f)
@@ -39,16 +39,47 @@ def load_openai_transformer(
         np.zeros((NUM_SEGMENTS, 768)).astype(np.float32)
     ] + init_params  # segment embedding
 
+    kwargs['vocab_size'] = 40478 + SPECIAL_COUNT
+    kwargs['n_layers'] = 12
+    kwargs['d_model'] = 768
+    kwargs['d_inner'] = 768 * 4
+    kwargs['n_head'] = 12
+    kwargs['d_k'] = 768 // 12
+    kwargs['d_v'] = 768 // 12
+    kwargs['d_out'] = 768
+    kwargs['num_segments'] = NUM_SEGMENTS
+    kwargs['max_len'] = min(512, max_len)
+    kwargs['embedding_layer_norm'] = False
+    kwargs['trainable_pos_embedding'] = True
+
+    if 'neg_inf' not in kwargs:
+        kwargs['neg_inf'] = -1e9
+    if 'layer_norm_epsilon' not in kwargs:
+        kwargs['layer_norm_epsilon'] = 1e-5
+    if 'embedding_dropout' not in kwargs:
+        kwargs['embedding_dropout'] = 0.1
+    if 'attention_dropout' not in kwargs:
+        kwargs['attention_dropout'] = 0.1
+    if 'residual_dropout' not in kwargs:
+        kwargs['residual_dropout'] = 0.1
+    if 'task_dropout' not in kwargs:
+        kwargs['task_dropout'] = 0.1
+    if 'use_gelu' not in kwargs:
+        kwargs['use_gelu'] = True
+    if 'accurate_gelu' not in kwargs:
+        kwargs['accurate_gelu'] = False
+    if 'use_pad_mask' not in kwargs:
+        kwargs['use_pad_mask'] = False
+
+    if not is_training:
+        kwargs['embedding_dropout'] = 0.0
+        kwargs['attention_dropout'] = 0.0
+        kwargs['residual_dropout'] = 0.0
+        kwargs['task_dropout'] = 0.0
+
     model = TransformerEncoder(
-        vocab_size=40478 + SPECIAL_COUNT, n_layers=12, d_model=768,
-        d_inner=768 * 4, n_head=12, d_k=768 // 12, d_v=768 // 12, d_out=768,
-        max_len=min(512, max_len), num_segments=NUM_SEGMENTS,
-        embedding_dropout=0.1, attention_dropout=0.1, residual_dropout=0.1,
-        embedding_layer_norm=False, layer_norm_epsilon=1e-5, neg_inf=-1e9,
-        trainable_pos_embedding=True,
         use_one_embedding_dropout=use_one_embedding_dropout,
-        use_attn_mask=use_attn_mask, use_pad_mask=False, use_gelu=True,
-        accurate_gelu=False, **kwargs
+        use_attn_mask=use_attn_mask, **kwargs
     )
     maxi_len = min(512, max_len)
     input_shape = [
@@ -59,6 +90,10 @@ def load_openai_transformer(
     if use_attn_mask:
         input_shape.append(
             (None, 1, maxi_len, maxi_len)
+        )
+    if 'use_pad_mask' in kwargs and kwargs['use_pad_mask']:
+        input_shape.append(
+            (None, maxi_len, 1)
         )
 
     model.build(input_shape)
@@ -79,7 +114,7 @@ def load_openai_transformer(
 def load_google_bert(
         base_location, use_attn_mask=True, max_len=512,
         verbose=False, use_pooler=False, use_masked_lm=False,
-        use_next_sp=False, **kwargs):
+        use_next_sp=False, is_training=True, **kwargs):
 
     if not use_pooler:
         use_next_sp = False
@@ -104,25 +139,48 @@ def load_google_bert(
     check_point = tf.train.load_checkpoint(init_checkpoint)
     vocab_size = bert_config.vocab_size - BERT_SPECIAL_COUNT - BERT_UNUSED_COUNT
 
+    if 'neg_inf' not in kwargs:
+        kwargs['neg_inf'] = -1e4
+    if 'use_one_embedding_dropout' not in kwargs:
+        kwargs['use_one_embedding_dropout'] = True
+    if 'layer_norm_epsilon' not in kwargs:
+        kwargs['layer_norm_epsilon'] = 1e-12
+    if 'embedding_dropout' not in kwargs:
+        kwargs['embedding_dropout'] = 0.1
+    if 'attention_dropout' not in kwargs:
+        kwargs['attention_dropout'] = bert_config.attention_probs_dropout_prob
+    if 'residual_dropout' not in kwargs:
+        kwargs['residual_dropout'] = bert_config.hidden_dropout_prob
+    if 'task_dropout' not in kwargs:
+        kwargs['task_dropout'] = 0.1
+    if 'use_gelu' not in kwargs:
+        kwargs['use_gelu'] = True
+    if 'accurate_gelu' not in kwargs:
+        kwargs['accurate_gelu'] = True
+    if 'use_pad_mask' not in kwargs:
+        kwargs['use_pad_mask'] = False
+    kwargs['vocab_size'] = vocab_size + SPECIAL_COUNT
+    kwargs['n_layers'] = bert_config.num_hidden_layers
+    kwargs['d_model'] = bert_config.hidden_size
+    kwargs['d_inner'] = bert_config.intermediate_size
+    kwargs['n_head'] = bert_config.num_attention_heads
+    kwargs['d_k'] = bert_config.hidden_size // bert_config.num_attention_heads
+    kwargs['d_v'] = bert_config.hidden_size // bert_config.num_attention_heads
+    kwargs['d_out'] = bert_config.hidden_size
+    kwargs['num_segments'] = NUM_SEGMENTS
+    kwargs['max_len'] = min(512, max_len)
+    kwargs['embedding_layer_norm'] = True
+    kwargs['trainable_pos_embedding'] = True
+
+    if not is_training:
+        kwargs['embedding_dropout'] = 0.0
+        kwargs['attention_dropout'] = 0.0
+        kwargs['residual_dropout'] = 0.0
+        kwargs['task_dropout'] = 0.0
+
     model = TransformerEncoder(
-        vocab_size=vocab_size + SPECIAL_COUNT,
-        n_layers=bert_config.num_hidden_layers,
-        d_model=bert_config.hidden_size,
-        d_inner=bert_config.intermediate_size,
-        n_head=bert_config.num_attention_heads,
-        d_k=bert_config.hidden_size // bert_config.num_attention_heads,
-        d_v=bert_config.hidden_size // bert_config.num_attention_heads,
-        d_out=bert_config.hidden_size,
-        max_len=min(512, max_len),  # max_len,
-        num_segments=NUM_SEGMENTS,
-        embedding_dropout=0.1,
-        attention_dropout=bert_config.attention_probs_dropout_prob,
-        residual_dropout=bert_config.hidden_dropout_prob,
-        embedding_layer_norm=True, layer_norm_epsilon=1e-12, neg_inf=-1e4,
-        trainable_pos_embedding=True,
-        use_one_embedding_dropout=True,
-        use_attn_mask=use_attn_mask, use_pad_mask=False, use_gelu=True,
-        accurate_gelu=True,  use_pooler=use_pooler, use_masked_lm=use_masked_lm,
+        use_attn_mask=use_attn_mask,
+        use_pooler=use_pooler, use_masked_lm=use_masked_lm,
         use_next_sp=use_next_sp,
         **kwargs
     )
@@ -136,6 +194,10 @@ def load_google_bert(
     if use_attn_mask:
         input_shape.append(
             (None, 1, maxi_len, maxi_len)
+        )
+    if 'use_pad_mask' in kwargs and kwargs['use_pad_mask']:
+        input_shape.append(
+            (None, maxi_len, 1)
         )
 
     model.build(input_shape)

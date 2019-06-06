@@ -247,7 +247,7 @@ class ScaledDotProductAttention(layers.Layer):
         super(ScaledDotProductAttention, self).__init__(**kwargs)
         self.temperature = temperature
         self.attn_dropout = attn_dropout
-        self.neg_inf = neg_inf
+        self.neg_inf = float(neg_inf)
         self.use_attn_mask = use_attn_mask
 
         self.dropout = layers.Dropout(self.attn_dropout)
@@ -282,7 +282,8 @@ class ScaledDotProductAttention(layers.Layer):
         attn = K.batch_dot(q, k)  # attn is of shape B, H, Lq, Lk
         attn = attn / self.temperature
         if mask is not None:
-            attn = mask * attn + (1.0 - mask) * self.neg_inf
+            mask = tf.cast(mask, attn.dtype)
+            attn = (mask * attn) + ((1.0 - mask) * self.neg_inf)
         attn = self.softmax(attn)
         attn = self.dropout(attn)
 
@@ -984,7 +985,7 @@ class QuestionAnsweringTask(layers.Layer):
 
     def compute_output_shape(self, input_shape):
         shape = tf.TensorShape(input_shape).as_list()
-        return [tf.TensorShape(shape[:-2]), tf.TensorShape(shape[:-2])]
+        return [tf.TensorShape(shape[:-1]), tf.TensorShape(shape[:-1])]
 
     def call(self, x):
         x = self.mod_dropout(x)
@@ -1469,6 +1470,7 @@ class TransformerEncoder(models.Model):
             task_dropout=0.1, **kwargs):
 
         super(TransformerEncoder, self).__init__()
+
         if d_out is None:
             d_out = d_model
         if not use_pooler:
