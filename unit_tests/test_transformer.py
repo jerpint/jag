@@ -13,7 +13,7 @@ def eval_transformer_shape(params=None):
 
     import tensorflow as tf
     import numpy as np
-    from models.transformer import TransformerEncoder
+    from jag.models.transformer import TransformerEncoder
 
     if not params:
         params = {
