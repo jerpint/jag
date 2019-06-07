@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ecodse-funtime-alpha',
+    name='jag',
     python_requires='>=3.6',
     version='0.1a',
     description='Jag for MRQA',
