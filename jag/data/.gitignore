@@ -2,3 +2,4 @@ datasets
 embeddings
 *.jsonl.gz
 *.jsonl
+*.zip

@@ -1,7 +1,0 @@
-flake8
-pytest
-tensorflow
-mlflow
-pandas
-boto3
-tqdm
