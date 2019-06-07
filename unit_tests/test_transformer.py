@@ -1,28 +1,39 @@
-def test_transformer_shape():
+def test_transormer_shape():
+
+    '''Call the transformer shape test n times to ensure stochasticity
+    in parameter check.'''
+
+    n = 10
+    for _ in range(n):
+        eval_transformer_shape()
+
+
+def eval_transformer_shape(params=None):
     '''Basic test to make sure tensorflow is properly installed'''
 
     import tensorflow as tf
     import numpy as np
     from models.transformer import TransformerEncoder
 
-    params = {
-        'n_layers': 3,
-        'd_inner': 50,
-        'n_head': 5,
-        'd_k': 15,
-        'd_v': 15,
-        'embedding_dropout': 0.1,
-        'attention_dropout': 0.1,
-        'residual_dropout': 0.1,
-        'embedding_layer_norm': False,
-        'layer_norm_epsilon': 1e-5,
-        'neg_inf': float(-1e9),
-        'trainable_pos_embedding': True,
-        'use_one_embedding_dropout': True,
-        'use_gelu': False,
-        'accurate_gelu': False,
-        'task_dropout': 0.1,
-    }
+    if not params:
+        params = {
+            'n_layers': 3,
+            'd_inner': 50,
+            'n_head': 5,
+            'd_k': 15,
+            'd_v': 15,
+            'embedding_dropout': 0.1,
+            'attention_dropout': 0.1,
+            'residual_dropout': 0.1,
+            'embedding_layer_norm': False,
+            'layer_norm_epsilon': 1e-5,
+            'neg_inf': float(-1e9),
+            'trainable_pos_embedding': True,
+            'use_one_embedding_dropout': True,
+            'use_gelu': False,
+            'accurate_gelu': False,
+            'task_dropout': 0.1,
+        }
 
     vocab_size = np.random.randint(20, 50)
     max_len = np.random.randint(10, 25)
@@ -123,22 +134,22 @@ def test_transformer_shape():
         expected_inputs.append(pad_mask)
 
     expected_outputs_shape.append([batch_size, cur_len, d_out])
-    if use_pooler:
+    if model.use_pooler:
         expected_outputs_shape.append([batch_size, d_out])
-    if use_masked_lm:
+    if model.use_masked_lm:
         expected_outputs_shape.append([batch_size, cur_len, vocab_size])
-    if use_next_sp:
+    if model.use_next_sp:
         expected_outputs_shape.append([batch_size, 2])
 
-    if do_seq_class_task:
+    if model.do_seq_class_task:
         expected_outputs_shape.append([batch_size, seq_class_num_labels])
-    if do_mult_choice_task:
+    if model.do_mult_choice_task:
         expected_outputs_shape.append(
             [batch_size // task_num_choices, task_num_choices])
-    if do_tok_class_task:
+    if model.do_tok_class_task:
         expected_outputs_shape.append(
             [batch_size, cur_len, tok_class_num_labels])
-    if do_qa_task:
+    if model.do_qa_task:
         expected_outputs_shape.append([batch_size, cur_len])
         expected_outputs_shape.append([batch_size, cur_len])
 
@@ -153,10 +164,24 @@ def test_transformer_shape():
         outputs = model(expected_inputs)
 
     if isinstance(outputs, (list, tuple)):
-        assert len(expected_outputs_shape) == len(outputs)
+        assert len(expected_outputs_shape) == len(outputs), \
+                (f'Params: {params}'
+                 f'Expected: {expected_outputs_shape}'
+                 f'Outputs: {[v.shape for v in outputs]}')
         for i, v in enumerate(outputs):
-            assert list(v.shape) == expected_outputs_shape[i]
+            assert list(v.shape) == expected_outputs_shape[i],  \
+                (f'Params: {params}'
+                 f'Expected: {expected_outputs_shape}'
+                 f'Outputs: {[v.shape for v in outputs]}'
+                 f'Index: {i}')
 
     else:
-        assert len(expected_outputs_shape) == 1
-        assert list(outputs.shape) == expected_outputs_shape[0]
+        assert len(expected_outputs_shape) == 1, \
+                (f'Params: {params}'
+                 f'Expected: {expected_outputs_shape}'
+                 f'Outputs: {outputs.shape}')
+
+        assert list(outputs.shape) == expected_outputs_shape[0], \
+                   (f'Params: {params}'
+                    f'Expected: {expected_outputs_shape}'
+                    f'Outputs: {outputs.shape}')
