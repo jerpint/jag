@@ -24,5 +24,5 @@ setup(
                       'tqdm',
                       'mlflow'],
 
-    extras_require={'dev': ['flake8', 'pytest']}
+    extras_require={'dev': ['flake8', 'pytest', 'pytest-cov']}
 )
