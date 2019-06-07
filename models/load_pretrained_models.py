@@ -544,30 +544,30 @@ def load_google_bert(
 
 if __name__ == '__main__':
 
-    model = load_openai_transformer(
-        path='./cache/pre_trained/openai/model/',
-        special_tokens=5,
-        add_special_token_to_begin=True,
-        num_segments=2,
-        use_pooler=True, use_masked_lm=False, use_next_sp=False,
-        do_seq_class_task=False, do_mult_choice_task=False,
-        do_tok_class_task=False, do_qa_task=False,
-        seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
-        task_dropout=0.1
-    )
-
-    # model = load_google_bert(
-    #     path='./cache/pre_trained/google_bert/multi_cased_L-12_H-768_A-12/',
-    #     verbose=True,
-    #     keep_all_bert_tokens=False,
-    #     special_tokens=[('PAD', 0), ('MSK', 103), ('BOS', 101),
-    #                     ('DEL', 102), ('EOS', 102)],
-    #     add_special_token_to_begin=False,
+    # model = load_openai_transformer(
+    #     path='./cache/pre_trained/openai/model/',
+    #     special_tokens=5,
+    #     add_special_token_to_begin=True,
     #     num_segments=2,
     #     use_pooler=True, use_masked_lm=False, use_next_sp=False,
     #     do_seq_class_task=False, do_mult_choice_task=False,
-    #     do_tok_class_task=True, do_qa_task=False,
+    #     do_tok_class_task=False, do_qa_task=False,
     #     seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
     #     task_dropout=0.1
     # )
+
+    model = load_google_bert(
+        path='./cache/pre_trained/google_bert/multi_cased_L-12_H-768_A-12/',
+        verbose=True,
+        keep_all_bert_tokens=False,
+        special_tokens=[('PAD', 0), ('MSK', 103), ('BOS', 101),
+                        ('DEL', 102), ('EOS', 102)],
+        add_special_token_to_begin=False,
+        num_segments=2,
+        use_pooler=True, use_masked_lm=False, use_next_sp=False,
+        do_seq_class_task=False, do_mult_choice_task=False,
+        do_tok_class_task=True, do_qa_task=False,
+        seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
+        task_dropout=0.1
+    )
     print("done!")
