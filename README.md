@@ -1,5 +1,21 @@
 # jag
 
+## Installation instructions
+
+To install the `jag` package, use pip:
+
+`pip install -e .`
+
+### Dev
+
+To install in dev mode (i.e. to run unit tests), use:
+
+`pip install -e .[dev]`
+
+Note: if you are using `zsh`, use:
+
+`pip install -e '.[dev]'`
+
 ## Mlflow
 
 Install mlflow using pip or conda:
