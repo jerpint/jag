@@ -12,7 +12,8 @@ except ModuleNotFoundError:
 
 def load_openai_transformer(
         path,
-        special_count=5,
+        special_tokens=None,
+        add_special_token_to_begin=True,
         num_segments=2,
         use_attn_mask=True, max_len=512,
         use_one_embedding_dropout=False,
@@ -21,9 +22,13 @@ def load_openai_transformer(
 
     Inputs:
         ``path`` (str): the path containing the pretrained model
-        ``special_count`` (int): the number of special tokens of
-    your models.
-        E.g., PAD, MSK, BOS, DEL, EOS. Default: 5
+        ``special_tokens`` (int or List[(Token, Index_in_Bert_Vocab)]):
+    the special tokens of mapping for your problem.
+    E.g., ('PAD', 0), ('MSK', 103), ('BOS', 101), ('DEL', 102), ('EOS', 102)
+    Default: None
+        ``add_special_token_to_begin``: if True, add the special token at
+    the begin so that vocab as [special_tokens, [vocab]] otherwise we have
+    [[vocab], special_tokens].
         ``num_segments`` (int): number of segments. if set to zero,
     then the segment
     embeddings  won't be performed. Default: 2.
@@ -45,6 +50,13 @@ def load_openai_transformer(
 
     """
 
+    if special_tokens is None:
+        special_tokens = []
+    if isinstance(special_tokens, (list, tuple)):
+        special_count = len(special_tokens)
+    else:
+        special_count = int(special_tokens)
+
     with open(path + 'params_shapes.json') as f:
         shapes = json.load(f)
 
@@ -62,13 +74,25 @@ def load_openai_transformer(
     # add special token embedding to token embedding
     # the special tokens are added at the end of the [vocab]
     if special_count > 0:
-        init_params[1] = np.concatenate(
-            (
-                init_params[1],
-                np.random.randn(special_count, 768).astype(np.float32) * 0.02
-            ),
-            axis=0
-        )
+        if not add_special_token_to_begin:
+            init_params[1] = np.concatenate(
+                (
+                    init_params[1],
+                    np.random.randn(special_count, 768).astype(
+                        np.float32) * 0.02
+                ),
+                axis=0
+            )
+        else:
+            init_params[1] = np.concatenate(
+                (
+                    np.random.randn(special_count, 768).astype(
+                        np.float32) * 0.02,
+                    init_params[1]
+                ),
+                axis=0
+            )
+
     if num_segments > 0:
         # adding parameters for segment embeddings if needed
         init_params = [
@@ -520,29 +544,30 @@ def load_google_bert(
 
 if __name__ == '__main__':
 
-    # model = load_openai_transformer(
-    #     path='./cache/pre_trained/openai/model/',
-    #     special_count=5,
-    #     num_segments=2,
-    #     use_pooler=True, use_masked_lm=False, use_next_sp=False,
-    #     do_seq_class_task=False, do_mult_choice_task=False,
-    #     do_tok_class_task=False, do_qa_task=False,
-    #     seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
-    #     task_dropout=0.1
-    # )
-
-    model = load_google_bert(
-        path='./cache/pre_trained/google_bert/multi_cased_L-12_H-768_A-12/',
-        verbose=True,
-        keep_all_bert_tokens=False,
-        special_tokens=[('PAD', 0), ('MSK', 103), ('BOS', 101),
-                        ('DEL', 102), ('EOS', 102)],
-        add_special_token_to_begin=False,
+    model = load_openai_transformer(
+        path='./cache/pre_trained/openai/model/',
+        special_tokens=5,
+        add_special_token_to_begin=True,
         num_segments=2,
         use_pooler=True, use_masked_lm=False, use_next_sp=False,
         do_seq_class_task=False, do_mult_choice_task=False,
-        do_tok_class_task=True, do_qa_task=False,
+        do_tok_class_task=False, do_qa_task=False,
         seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
         task_dropout=0.1
     )
+
+    # model = load_google_bert(
+    #     path='./cache/pre_trained/google_bert/multi_cased_L-12_H-768_A-12/',
+    #     verbose=True,
+    #     keep_all_bert_tokens=False,
+    #     special_tokens=[('PAD', 0), ('MSK', 103), ('BOS', 101),
+    #                     ('DEL', 102), ('EOS', 102)],
+    #     add_special_token_to_begin=False,
+    #     num_segments=2,
+    #     use_pooler=True, use_masked_lm=False, use_next_sp=False,
+    #     do_seq_class_task=False, do_mult_choice_task=False,
+    #     do_tok_class_task=True, do_qa_task=False,
+    #     seq_class_num_labels=2, task_num_choices=2, tok_class_num_labels=2,
+    #     task_dropout=0.1
+    # )
     print("done!")
