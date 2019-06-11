@@ -1,7 +1,7 @@
 import gzip
 import json
 
-from jag.utils.data.mrqa_example import MRQAExample
+from jag.data.mrqa_example import MRQAExample
 from jag.utils.data_fetcher import get_file
 from jag.utils.data_utils import remove_html_tags, remove_punc, normalize
 
