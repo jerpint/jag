@@ -1,5 +1,0 @@
-database:
-  type: 'mongodb'
-  name: 'dl_training'
-  host: 'mongodb://user:password@orion-shard-00-00-7xwio.mongodb.net:27017,orion-shard-00-01-7xwio.mongodb.net:27017,orion-shard-00-02-7xwio.mongodb.net:27017/test?ssl=true&replicaSet=orion-shard-0&authSource=admin&retryWrites=true'
-
