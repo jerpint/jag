@@ -41,3 +41,18 @@ To install the development environment for `jag`, use the installation script
 `./install.sh`
 
 This will install the development environment of the package and configure the git hooks.
+
+## Orion
+
+To use Orion, you must first configure a MongoDB database.
+First, you need [to install MongoDB](cf. https://docs.mongodb.com/manual/installation/).
+Then, you can create a database called `orion_test` and create an username and password with 
+```
+mongo orion_test --eval 'db.createUser({user:"user",pwd:"pass",roles:["readWrite"]});'
+```
+After, you can adapt the orion config file provided in the config directory of the repository and copy/paste it.
+```
+mkdir -p ~/.config/orion.core/
+cp config/orion/orion_config.yaml ~/.config/orion.core/orion_config.yaml
+```
+Finally, you can test your installation with the script `hyper_search.sh` located in `/examples/orion`.
