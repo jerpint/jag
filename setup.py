@@ -22,7 +22,8 @@ setup(
                       'pandas',
                       'boto3',
                       'tqdm',
-                      'mlflow'],
+                      'mlflow',
+                      'orion-core'],
 
     extras_require={'dev': ['flake8', 'pytest', 'pytest-cov']}
 )
