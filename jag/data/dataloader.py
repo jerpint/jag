@@ -77,7 +77,9 @@ class FeatureWriter(object):
 
 
 def input_fn_builder(
-        input_file, seq_length, max_answer_num, is_training, drop_remainder):
+        input_file, seq_length, max_answer_num,
+        is_training, drop_remainder, repeat=True, shuffle=True,
+        return_no_label=True, useQATask=True, single_qa_output=False):
     """ Creates an `input_fn` closure tthat defines our dataset
         from a TFrecord data file. be passed to our model.
         Args:
@@ -89,11 +91,26 @@ def input_fn_builder(
                 saved are for training purposes.
             drop_remainder (bool): whether to drop the remaining data if the
                 len of the dataset is not a multiple of the batch size.
+            repeat (bool): repeat the dataset. only effective if `is_training`
+                is set to `True`. Default `True`.
+            shuffle (bool): shuffle the dataset. only effective if `is_training`
+                is set to `True`. Default `True`.
+            return_no_label (bool): do not return the label component.
+                only effective if `is_training` is set to `True`. Default True.
+            useQATask: flag indicating whether to model classic QA task.
+                if False, we model instead token based classification task
+            single_qa_output (bool): whether or not to concatenate th output of
+                qa into a signle tensor. Default: False
         Returns:
             a closure function that will instantiate a dataset based on the params
             received as arguments.
 
     """
+
+    if not is_training:
+        repeat = False
+        shuffle = False
+        return_no_label = True
 
     name_to_features = {
         "unique_ids": tf.FixedLenFeature([], tf.int64),
@@ -130,7 +147,34 @@ def input_fn_builder(
                 t = tf.cast(t, tf.int32)  # tf.to_int32(t)
             example[name] = t
 
-        return example
+        if return_no_label:
+            return example
+        else:
+            label = collections.OrderedDict()
+            if useQATask:
+                # label["start_positions"] = example.pop("start_positions")
+                # label["end_positions"] = example.pop("end_positions")
+                if not single_qa_output:
+                    label = (
+                        example.pop("start_positions"),
+                        example.pop("end_positions")
+                    )
+                else:
+                    start = example.pop("start_positions")
+                    end = example.pop("end_positions")
+                    start = tf.expand_dims(start, axis=1)
+                    end = tf.expand_dims(end, axis=1)
+                    res = tf.concat(
+                        [start, end],
+                        axis=1
+                    )
+                    label = res  # (res,)
+            else:
+                # label["token_classes"] =
+                # (example.pop("token_classes"), )
+                label = example.pop("token_classes")
+
+            return example, label
 
     def input_fn(params):
         """The actual input function.
@@ -146,8 +190,9 @@ def input_fn_builder(
         # For training, we want a lot of parallel reading and shuffling.
         # For eval, we want no shuffling and parallel reading doesn't matter.
         d = tf.data.TFRecordDataset(input_file)
-        if is_training:
+        if repeat:
             d = d.repeat()
+        if shuffle:
             d = d.shuffle(buffer_size=100)
 
         d = d.apply(
