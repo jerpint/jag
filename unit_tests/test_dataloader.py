@@ -1,9 +1,11 @@
+import tensorflow as tf
+from jag.data.data_handler import DatasetHandler
+from jag.data.feature_handler import convert_examples_to_features
+from jag.utils.bert_tokenizer import BertTokenizer
+from jag.data.dataloader import FeatureWriter, input_fn_builder
+
+
 def test_dataloader():
-    import tensorflow as tf
-    from jag.data.data_handler import DatasetHandler
-    from jag.data.feature_handler import convert_examples_to_features
-    from jag.utils.bert_tokenizer import BertTokenizer
-    from jag.data.dataloader import FeatureWriter, input_fn_builder
 
     max_seq_length = 256
     ctx_stride = 128

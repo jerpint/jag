@@ -1,7 +1,8 @@
+from jag.utils.bert_tokenizer import BasicTokenizer, BertTokenizer
+
+
 def test_basic_tokenizer():
     '''Unit test of tokenizer utility'''
-
-    from jag.utils.bert_tokenizer import BasicTokenizer
 
     basic_tokenizer = BasicTokenizer()
 
@@ -22,8 +23,6 @@ def test_basic_tokenizer():
 
 def test_bert_tokenizer():
     '''Unit test of Bert tokenizer utility'''
-
-    from jag.utils.bert_tokenizer import BertTokenizer
 
     bert_tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased',
                                                    do_lower_case=False,
