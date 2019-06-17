@@ -1,9 +1,18 @@
 import gzip
 import json
+import logging
 
 from jag.data.mrqa_example import MRQAExample
 from jag.utils.data_fetcher import get_file
 from jag.utils.data_utils import remove_html_tags, remove_punc, normalize
+
+logger = logging.getLogger(__name__)
+
+""" The code encapsulated in this class mainly comes from Google Bert
+    repository (https://github.com/google-research/bert/blob/master/run_squad.py)
+    and it has been adapted for reading datasets for the MRQA datasets.
+
+"""
 
 
 class DatasetHandler():
@@ -18,7 +27,7 @@ class DatasetHandler():
     def __init__(self, data_src='mrqa_urls.txt', cache_dir='.'):
 
         self.dpath_dict = get_file(data_src, cache_dir)
-        print(self.dpath_dict)
+        logger.info(self.dpath_dict)
 
     def read_mrqa_examples(
             self, is_training=True,
@@ -34,13 +43,13 @@ class DatasetHandler():
         """
         examples = []
         for dataset_name in self.dpath_dict.keys():
-            print('Processing  dataset: {}'.format(dataset_name))
+            logger.info('Processing  dataset: {}'.format(dataset_name))
             data = self.read_mrqa_examples_from_dataset(
                 dataset_name, is_training, allow_questions_with_no_answer
             )
             examples += data
-            print('Example length so far: {:d}'.format(len(examples)))
-        print('Processing completed')
+            logger.info('Example length so far: {:d}'.format(len(examples)))
+        logger.info('Processing completed')
         return examples
 
     def read_mrqa_examples_from_dataset(
@@ -224,7 +233,7 @@ class DatasetHandler():
                             test_answer_lower_n = normalize(test_answer_lower)
 
                             if answer_lower_n != test_answer_lower_n:
-                                print(
+                                logger.info(
                                     "Could not find answer: '{}' vs. '{}' ".format(
                                         answer_lower_n, test_answer_lower_n
                                     )
@@ -240,7 +249,7 @@ class DatasetHandler():
                             answers.append(answer)
 
                     if len(answers) == 0:
-                        print(
+                        logger.info(
                             "Could not find any answer in context: '{}' vs. '{}'".format(
                                 answer_list, context_lower
                             )
@@ -262,5 +271,5 @@ class DatasetHandler():
                 )
                 examples.append(example)
 
-        print('escape examples: ', escape_examples)
+        logger.info('escape examples: ', escape_examples)
         return examples
