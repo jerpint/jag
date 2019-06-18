@@ -1,5 +1,9 @@
-def test_transormer_shape():
+import tensorflow as tf
+import numpy as np
+from jag.models.transformer import TransformerEncoder
 
+
+def test_transormer_shape():
     '''Call the transformer shape test n times to ensure stochasticity
     in parameter check.'''
 
@@ -10,10 +14,6 @@ def test_transormer_shape():
 
 def eval_transformer_shape(params=None):
     '''Basic test to make sure tensorflow is properly installed'''
-
-    import tensorflow as tf
-    import numpy as np
-    from jag.models.transformer import TransformerEncoder
 
     if not params:
         params = {
@@ -165,9 +165,9 @@ def eval_transformer_shape(params=None):
 
     if isinstance(outputs, (list, tuple)):
         assert len(expected_outputs_shape) == len(outputs), \
-                (f'Params: {params}'
-                 f'Expected: {expected_outputs_shape}'
-                 f'Outputs: {[v.shape for v in outputs]}')
+            (f'Params: {params}'
+             f'Expected: {expected_outputs_shape}'
+             f'Outputs: {[v.shape for v in outputs]}')
         for i, v in enumerate(outputs):
             assert list(v.shape) == expected_outputs_shape[i],  \
                 (f'Params: {params}'
@@ -177,9 +177,9 @@ def eval_transformer_shape(params=None):
 
     else:
         assert len(expected_outputs_shape) == 1, \
-                (f'Params: {params}'
-                 f'Expected: {expected_outputs_shape}'
-                 f'Outputs: {outputs.shape}')
+            (f'Params: {params}'
+             f'Expected: {expected_outputs_shape}'
+             f'Outputs: {outputs.shape}')
 
         assert list(outputs.shape) == expected_outputs_shape[0], \
                    (f'Params: {params}'

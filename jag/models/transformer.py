@@ -1753,7 +1753,7 @@ class TransformerEncoder(models.Model):
             'task_dropout': self.task_dropout,
 
         }
-        base_config = super().get_config()
+        base_config = {}  # super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
     @classmethod

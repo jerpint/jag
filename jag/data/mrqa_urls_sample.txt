@@ -1,3 +1,4 @@
 # You can use comment to ignore some data sources
-train https://s3.us-east-2.amazonaws.com/mrqa/release/train/SQuAD.jsonl.gz 67afd110c0ad9860c4e88f16a44cd44c
-dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/SQuAD.jsonl.gz be0d95e28b470254b3574aeada84a79d
+#train https://s3.us-east-2.amazonaws.com/mrqa/release/train/SQuAD.jsonl.gz 67afd110c0ad9860c4e88f16a44cd44c
+#dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/SQuAD.jsonl.gz be0d95e28b470254b3574aeada84a79d
+dev https://s3.us-east-2.amazonaws.com/mrqa/release/dev/NewsQA.jsonl.gz aa9878b7469ad5b5c0f0738636cdb5bd
