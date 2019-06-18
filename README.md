@@ -34,6 +34,14 @@ Then launch mlflow from the root directory:
 
 You can then go see the different experiments at `localhost:5000`
 
+## Development installation instructions
+
+To install the development environment for `jag`, use the installation script
+
+`./install.sh`
+
+This will install the development environment of the package and configure the git hooks.
+
 ## Orion
 
 To use Orion, you must first configure a MongoDB database.
