@@ -2,63 +2,16 @@
 """
 Character based language model.
 """
-import re
-from collections import Counter
-
+import jag.examples.tensorflow.lm.preprocess as lm_preprocess
 import mlflow
-import mlflow_utils
-import numpy as np
+import jag.examples.tensorflow.lm.mlflow_utils as mlflow_utils
+import tensorflow as tf
+import tensorflow.logging
 from tensorflow.keras.layers import LSTM, Dense, Embedding
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.utils import to_categorical
 
-
-def load_text(filename):
-    """Load text into memory.
-
-    Args:
-        filename(str): text file.
-
-    Returns:
-        text(str): raw text.
-    """
-    with open(filename, 'r') as f:
-        text = f.read()
-
-    return text
-
-
-def save_text(lines, filename):
-    """Save text line by line.
-
-    Args:
-        lines(list): texts.
-        filename(str): text file.
-    """
-    with open(filename, 'w') as f:
-        f.write('\n'.join(lines))
-
-
-def create_vocabulary(text):
-    """Create vocabulary dictionaries.
-
-    Args:
-        text(str): raw text.
-
-    Returns:
-        char2id(dict): character to id mapping.
-        id2char(dict): id to character mapping.
-    """
-    char2id = {'<PAD>': 0}
-    id2char = {0: '<PAD>'}
-    freq = Counter(text)
-    for char, _ in freq.most_common():
-        id = len(char2id)
-        char2id[char] = id
-        id2char[id] = char
-
-    return char2id, id2char
+import argparse
 
 
 def generate_text(model, char2id, id2char, seed_text, maxlen=10, iter=20):
@@ -86,54 +39,6 @@ def generate_text(model, char2id, id2char, seed_text, maxlen=10, iter=20):
     return text
 
 
-def clean_text(raw_text):
-    """Clean raw text.
-
-    Args:
-        raw_text(str): text.
-
-    Returns:
-        cleaned_text(str): cleaned_text
-    """
-    tokens = raw_text.split()
-    cleaned_text = '_'.join(tokens)
-    pattern = re.compile(r'（.+?）')
-    cleaned_text = pattern.sub('', cleaned_text)
-
-    return cleaned_text
-
-
-def create_dataset(text, char2id, maxlen=10):
-    """Create a dataset.
-
-    Args:
-        text(str): text.
-        char2id(dict): character to id mapping.
-        maxlen(int): max sequence length.
-
-    Returns:
-        X(ndarray): encoded character sequences.
-        y(ndarray): encoded label sequences.
-    """
-    sequences = []
-    for i in range(maxlen, len(text)):
-        seq = text[i - maxlen: i + 1]
-        encoded = [char2id[char] for char in seq]
-        sequences.append(encoded)
-
-    sequences = np.array(sequences)
-    X, y = sequences[:, :-1], sequences[:, -1]
-
-    return X, y
-
-
-def preprocess_dataset(X, y, vocab_size):
-    X = [to_categorical(x, num_classes=vocab_size) for x in X]
-    y = to_categorical(y, num_classes=vocab_size)
-
-    return X, y
-
-
 def create_model(vocab_size, embedding_dim=50):
     """Create a model.
 
@@ -152,19 +57,23 @@ def create_model(vocab_size, embedding_dim=50):
     return model
 
 
-def main():
-    raw_text = load_text('data/1661-0.txt')
-    cleaned_text = clean_text(raw_text)
-    cleaned_text = cleaned_text[:10000]
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", default='data/1661-0.txt',
+                        help="echo the string you use here")
+    args = parser.parse_args()
+
+    tf.logging.set_verbosity(tf.logging.INFO)
+    raw_text = lm_preprocess.load_text(args.data)
+    cleaned_text = lm_preprocess.clean_text(raw_text)
     print(cleaned_text)
+    cleaned_text = cleaned_text[:10000]
 
-    char2id, id2char = create_vocabulary(cleaned_text)
+    char2id, id2char = lm_preprocess.create_vocabulary(cleaned_text)
     vocab_size = len(char2id)
-    print('Vocabulary size: {}'.format(vocab_size))
+    tf.logging.info('Vocabulary size: {}'.format(vocab_size))
 
-    X, y = create_dataset(cleaned_text, char2id)
-    print('X shape: {}'.format(X.shape))
-    print('y shape: {}'.format(y.shape))
+    X, y = lm_preprocess.create_dataset(cleaned_text, char2id)
 
     model = create_model(vocab_size)
     model.summary()
@@ -176,4 +85,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    tf.app.run()
