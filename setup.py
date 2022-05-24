@@ -17,7 +17,7 @@ setup(
     ],
     packages=find_packages(exclude=['docs', 'tests']),
 
-    install_requires=['tensorflow==1.13.1',
+    install_requires=['tensorflow==2.6.4',
                       'numpy',
                       'pandas',
                       'boto3',
